@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    .game {
+      text-align: center;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      gap: 5px;
+      margin: 20px auto;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background-color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      cursor: pointer;
+      border: 2px solid #ccc;
+    }
+    .cell:hover {
+      background-color: #f9f9f9;
+    }
+    .status {
+      margin-bottom: 10px;
+      font-size: 1.5rem;
+    }
+    .mode-button {
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Build a tic-tac-toe web application against each other or Computer.Implement functions to handle user clicks, track game state, and check for winning conditions, you can create an interactive and engaging tic-tac-toe game. -->
+  <div class="game">
+    <div class="status" id="status">Player X's turn</div>
+    <div class="board" id="board"></div>
+    <button onclick="resetGame()">Reset</button>
+    <button class="mode-button" onclick="toggleMode()">Switch to Computer Mode</button>
+  </div>
+
+  <script>
+    const boardEl = document.getElementById('board');
+    const statusEl = document.getElementById('status');
+    let board = Array(9).fill(null);
+    let currentPlayer = 'X';
+    let isGameOver = false;
+    let vsComputer = false;
+
+    function renderBoard() {
+      boardEl.innerHTML = '';
+      board.forEach((value, index) => {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.textContent = value;
+        cell.addEventListener('click', () => handleCellClick(index));
+        boardEl.appendChild(cell);
+      });
+    }
+
+    function handleCellClick(index) {
+      if (board[index] || isGameOver) return;
+      board[index] = currentPlayer;
+      checkGameStatus();
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      updateStatus();
+      renderBoard();
+      if (vsComputer && currentPlayer === 'O' && !isGameOver) {
+        setTimeout(computerMove, 300);
+      }
+    }
+
+    function computerMove() {
+      const available = board.map((v, i) => v === null ? i : null).filter(v => v !== null);
+      const move = available[Math.floor(Math.random() * available.length)];
+      if (move !== undefined) {
+        board[move] = 'O';
+        checkGameStatus();
+        currentPlayer = 'X';
+        updateStatus();
+        renderBoard();
+      }
+    }
+
+    function checkGameStatus() {
+      const winPatterns = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+      for (const pattern of winPatterns) {
+        const [a, b, c] = pattern;
+        if (board[a] && board[a] === board[b] && board[b] === board[c]) {
+          statusEl.textContent = `Player ${board[a]} wins!`;
+          isGameOver = true;
+          return;
+        }
+      }
+      if (!board.includes(null)) {
+        statusEl.textContent = "It's a draw!";
+        isGameOver = true;
+      }
+    }
+
+    function updateStatus() {
+      if (!isGameOver) {
+        statusEl.textContent = `Player ${currentPlayer}'s turn`;
+      }
+    }
+
+    function resetGame() {
+      board = Array(9).fill(null);
+      currentPlayer = 'X';
+      isGameOver = false;
+      updateStatus();
+      renderBoard();
+    }
+
+    function toggleMode() {
+      vsComputer = !vsComputer;
+      resetGame();
+      document.querySelector('.mode-button').textContent = vsComputer ? 'Switch to Two Player Mode' : 'Switch to Computer Mode';
+    }
+
+    renderBoard();
+  </script>
+</body>
+</html>
